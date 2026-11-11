@@ -3175,7 +3175,7 @@ details[open] .plus:after{
   .hero-actions{margin-top:24px}
   .hero-proof{margin-top:22px}
   .product-scene{height:480px}
-  .mini-window{top:15px;right:30px;transform:rotate(6deg) scale(.9)}
+  .mini-window{top:0;right:30px;transform:rotate(6deg) scale(.9)}
   .bot-window{top:95px;left:10px;transform:rotate(-5deg) scale(.9)}
   .signal-chip{bottom:18px;left:100px}
   .scene-orbit{width:400px;height:400px;top:35px;left:30px}
@@ -3204,3 +3204,4 @@ a,button,input,summary{touch-action:manipulation}
 .mini-body .demo-title{color:#171c35;line-height:1.08;letter-spacing:-.05em}
 .mini-window{height:auto}
 .mini-nav{position:relative}
+.scene-footnote{top:28px;bottom:auto;left:0;width:230px;text-align:left}
