@@ -3202,3 +3202,5 @@ a,button,input,summary{touch-action:manipulation}
 }
 
 .mini-body .demo-title{color:#171c35;line-height:1.08;letter-spacing:-.05em}
+.mini-window{height:auto}
+.mini-nav{position:relative}
