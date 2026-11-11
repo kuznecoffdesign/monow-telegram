@@ -1,4 +1,4 @@
-import { makeBrief, telegramLink } from './brief.mjs';
+import { makeBrief, telegramLink } from './brief.mjs?v=62ba8959db12';
 
 const menuButton = document.querySelector('.menu-toggle');
 const menu = document.querySelector('#mobile-menu');

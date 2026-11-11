@@ -19,7 +19,14 @@ const pages = [
 ];
 
 await mkdir(new URL('assets/vendor/', root), { recursive: true });
-for (const file of ['style.css', 'app.mjs', 'brief.mjs']) await copyFile(new URL(`src/${file}`, root), new URL(`assets/${file}`, root));
+const digest = value => createHash('sha256').update(value).digest('hex').slice(0, 12);
+const css = await readFile(new URL('src/style.css', root), 'utf8');
+const brief = await readFile(new URL('src/brief.mjs', root), 'utf8');
+const app = (await readFile(new URL('src/app.mjs', root), 'utf8')).replace("'./brief.mjs'", `'./brief.mjs?v=${digest(brief)}'`);
+await writeFile(new URL('assets/style.css', root), css);
+await writeFile(new URL('assets/brief.mjs', root), brief);
+await writeFile(new URL('assets/app.mjs', root), app);
+const assetVersions = { css: digest(css), app: digest(app) };
 for (const file of ['gsap.min.js', 'ScrollTrigger.min.js']) await copyFile(new URL(`node_modules/gsap/dist/${file}`, root), new URL(`assets/vendor/${file}`, root));
 await writeFile(new URL('assets/vendor/GSAP-LICENSE.txt', root), 'GSAP 3.15.1. Copyright GreenSock. License: https://gsap.com/standard-license/\n');
 await writeFile(new URL('assets/favicon.svg', root), '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="#021c8b"/><path d="m18 70 14-40h7l11 34 11-34h7l14 40h-8L65 42 55 70H45L35 42 26 70Z" fill="white"/></svg>');
@@ -36,14 +43,14 @@ for (const page of pages) {
   const schemaText = JSON.stringify(schema).replace(/</g, '\\u003c');
   const hash = createHash('sha256').update(schemaText).digest('base64');
   const csp = `default-src 'self'; script-src 'self' 'sha256-${hash}'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests`;
-  const content = layout(page, page.render(), schemaText, csp);
+  const content = layout({ ...page, assetVersions }, page.render(), schemaText, csp);
   const relative = page.path ? `${page.path}/index.html` : 'index.html';
   await mkdir(new URL(page.path ? `${page.path}/` : './', root), { recursive: true });
   await writeFile(new URL(relative, root), content);
   generated.push(relative);
 }
 
-const errorPage = { path: '404', title: 'Страница не найдена — monow', description: 'Этой страницы нет. Вернитесь на главную monow или обсудите проект в Telegram.' };
+const errorPage = { path: '404', title: 'Страница не найдена — monow', description: 'Этой страницы нет. Вернитесь на главную monow или обсудите проект в Telegram.', assetVersions };
 await writeFile(new URL('404.html', root), layout(errorPage, `<section class="not-found wrap"><span class="eyebrow">404 / НЕ ТУДА ПОВЕРНУЛИ</span><h1>Здесь пока<br>ничего нет.</h1><p>Вернёмся к тому, что работает.</p><a class="button" href="${url()}">На главную ↗</a></section>`, '{}', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"));
 await writeFile(new URL('robots.txt', root), 'User-agent: *\nDisallow: /monow-telegram/\n');
 await writeFile(new URL('sitemap.xml', root), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages.filter(p => !['brief', 'privacy'].includes(p.path)).map(p => `<url><loc>${origin}${url(p.path)}</loc></url>`).join('')}</urlset>\n`);

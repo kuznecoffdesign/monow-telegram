@@ -12,3 +12,7 @@ coverage/
 .cache/
 *.log
 .local/
+.npmrc
+.netrc
+.secrets*
+credentials*.json
