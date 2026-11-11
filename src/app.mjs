@@ -88,6 +88,7 @@ if (gsap && ScrollTrigger) {
   gsap.registerPlugin(ScrollTrigger);
   const media = gsap.matchMedia();
   media.add('(prefers-reduced-motion: no-preference)', () => {
+    const cleanup = [];
     gsap.from('[data-hero]', { y: 25, opacity: 0, duration: .85, ease: 'power3.out', clearProps: 'all' });
     document.querySelectorAll('[data-reveal]').forEach(element => {
       gsap.from(element, { y: 24, opacity: .2, duration: .75, ease: 'power3.out', clearProps: 'all', scrollTrigger: { trigger: element, start: 'top 94%', once: true } });
@@ -100,6 +101,12 @@ if (gsap && ScrollTrigger) {
       card.addEventListener('pointerleave', leave);
       card.addEventListener('focus', enter);
       card.addEventListener('blur', leave);
+      cleanup.push(() => {
+        card.removeEventListener('pointerenter', enter);
+        card.removeEventListener('pointerleave', leave);
+        card.removeEventListener('focus', enter);
+        card.removeEventListener('blur', leave);
+      });
     });
     const scene = document.querySelector('.product-scene');
     if (scene) {
@@ -110,5 +117,6 @@ if (gsap && ScrollTrigger) {
       gsap.to('.scene-orbit', { rotation: 35, scale: 1.05, ease: 'none', scrollTrigger: { trigger: scene, start: 'top 70%', end: 'bottom top', scrub: 1 } });
     }
     document.fonts.ready.then(() => ScrollTrigger.refresh());
+    return () => cleanup.forEach(remove => remove());
   });
 }
